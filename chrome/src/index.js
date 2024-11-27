@@ -12,7 +12,9 @@ const ROOT_LEVEL_CLASS_NAMES = [
   "notion-collection-item",
 ];
 const MUTATIONS_QUEUE = [];
-const CUSTOM_FONT_PATH = "assets/font/vazirmatn.ttf";
+const CUSTOM_FONT_PATH = "assets/font/vazirmatn.";
+const WOFF2_FONT_PATH = chrome.runtime.getURL(CUSTOM_FONT_PATH + "woff2");
+const TTF_FONT_PATH = chrome.runtime.getURL(CUSTOM_FONT_PATH + "ttf");
 
 const SELECTORS = {
   listItems: `div[placeholder="List"], div[placeholder="To-do"], div[placeholder="Toggle"], div[role="button"], div[dir="auto"], div[placeholder="Untitled"], div[data-content-editable-void="true"], a[role="link"]`,
@@ -37,6 +39,9 @@ const SELECTORS = {
           .notion-body:not([dir]),
           .notion-collection-item`,
 };
+const RTL_SELECTORS = `
+  .notion-collection-item
+`;
 
 const NOTION_DOCUMENT_MUTATION = new MutationObserver(onNotionDocumentLoaded);
 const NOTION_PAGE_CONTENT_MUTATION = new MutationObserver(() =>
@@ -69,11 +74,12 @@ function injectCustomFontStyles() {
   style.textContent = `
     @font-face {
         font-family: 'vazirmatn';
-        src: url('${CUSTOM_FONT_PATH}') format('truetype');
+        src: url('${TTF_FONT_PATH}') format('truetype'),
+        url('${WOFF2_FONT_PATH}') format('woff2');
         font-weight: normal;
         font-style: normal;
     }
-    .notion-page-content, .notion-table-view, .notion-board-view, 
+    .notion-page-content, .notion-table-view, .notion-board-view,
     .notion-gallery-view, .notion-page-block, .notion-topbar, .notion-body,
     .notion-body h1, .notion-body h2, .notion-body h3, .notion-body h4, .notion-body h5, .notion-body h6,
     .notion-body p, .notion-body span{
@@ -126,8 +132,28 @@ function setBlocksDirectionToAuto() {
   blocks.forEach((block) => setAttribute(block, "dir", "auto"));
 }
 
+function isRTL(text) {
+  const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+  return rtlRegex.test(text);
+}
+
+function setRTLForSpecificElements() {
+  const elements = getElements(RTL_SELECTORS);
+  elements.forEach((element) => {
+    const textContent = element.textContent.trim();
+    if (isRTL(textContent)) {
+      setAttribute(element, "dir", "rtl");
+      setStyle(element, "text-align", "right");
+    } else {
+      setAttribute(element, "dir", "ltr");
+      setStyle(element, "text-align", "left");
+    }
+  });
+}
+
 function alignPageContentToRight() {
   setBlocksDirectionToAuto();
+  setRTLForSpecificElements();
   alignListItemsToRight();
   applyCustomFontToElements();
 }
