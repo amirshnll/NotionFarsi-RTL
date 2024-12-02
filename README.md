@@ -1,2 +1,5 @@
 # NotionFarsi-RTL
 An extension to add RTL (Right-to-Left) support for Farsi in Notion.
+
+The RTL Notion Persian plugin is a user-friendly tool designed to enhance the experience of Persian and Arabic speakers within the Notion environment. Developed by Amir Shokri in collaboration with the Persian Notion Community, this open-source extension allows users to seamlessly align text, titles, and tables to the right, creating a layout optimized for right-to-left languages like Persian and Arabic. With this plugin, users can write, read, and manage their projects in Notion with improved readability and a more professional appearance.
+Key features of the plugin include automatic right alignment for text, headings, and tables, compatibility with Persian fonts for a polished display, and easy installation on popular browsers like Chrome and Firefox. Being open-source, the plugin ensures transparency, with its code publicly available for review. The RTL Notion Persian plugin transforms Notion into a more accessible and enjoyable workspace for right-to-left language users, promoting a streamlined and tailored experience.
