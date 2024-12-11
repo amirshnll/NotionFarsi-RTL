@@ -16,59 +16,6 @@ const CUSTOM_FONT_PATH = "assets/font/vazirmatn.";
 const WOFF2_FONT_PATH = browser.runtime.getURL(CUSTOM_FONT_PATH + "woff2");
 const TTF_FONT_PATH = browser.runtime.getURL(CUSTOM_FONT_PATH + "ttf");
 
-const SELECTORS = {
-  listItems: `div[placeholder="List"], div[placeholder="To-do"], div[placeholder="Toggle"], div[role="button"], div[dir="auto"], div[placeholder="Untitled"], div[data-content-editable-void="true"], a[role="link"]`,
-  topLevelBlocks: `.notion-page-content > div[data-block-id],
-          [placeholder="Untitled"],
-          [placeholder="Heading 1"],
-          [placeholder="Heading 2"],
-          [placeholder="Heading 3"],
-          [placeholder="Heading 4"],
-          [placeholder="Heading 5"],
-          [placeholder="Heading 6"],
-          .notion-column-block > div[data-block-id],
-          .notion-selectable > div[data-block-id],
-          .notion-collection_view-block,
-          .notion-table-view:not([dir]),
-          .notion-board-view:not([dir]),
-          .notion-gallery-view:not([dir]),
-          .notion-page-block:not([dir]),
-          .notion-topbare:not([dir]),
-          .notion-page-block:not([dir]),
-          .notion-topbar:not([dir]),
-          .notion-body:not([dir]),
-          .notion-collection-item`,
-};
-const RTL_SELECTORS = `
-  .notion-collection-item
-`;
-
-const NOTION_DOCUMENT_MUTATION = new MutationObserver(onNotionDocumentLoaded);
-const NOTION_PAGE_CONTENT_MUTATION = new MutationObserver(() =>
-  alignPageContentToRight()
-);
-
-function init() {
-  initObservers();
-  injectCustomFontStyles();
-  applyCustomFontToElements();
-
-  document.addEventListener("keydown", handleEnterKeyPress);
-}
-
-function handleEnterKeyPress(event) {
-  if (event.key === "Enter" || event.key === " ") {
-    alignPageContentToRight();
-  }
-}
-
-function initObservers() {
-  NOTION_DOCUMENT_MUTATION.observe(document, {
-    childList: true,
-    subtree: true,
-  });
-}
-
 function injectCustomFontStyles() {
   const style = document.createElement("style");
   style.textContent = `
@@ -85,12 +32,14 @@ function injectCustomFontStyles() {
     .notion-body p, .notion-body span{
         font-family: 'vazirmatn', sans-serif !important;
     }
-    .notion-frame div[style]:has(h1),.notion-frame div[placeholder="Untitled"],
     .notion-collection_view-block div[data-content-editable-void="true"] > div:nth-child(2){
         direction:rtl!important;
     }
     .notion-view-settings-sidebar {
         direction:ltr !important;
+    }
+    .notion-board-view{
+        float:none !important;
     }
     `;
   document.head.appendChild(style);
@@ -110,93 +59,71 @@ function applyCustomFontToElements() {
   });
 }
 
-function getElements(selector) {
-  return document.querySelectorAll(selector);
-}
+function applyRTLToBlocks() {
+  const bulletedListBlocks = document.querySelectorAll(
+    ".notion-selectable.notion-bulleted_list-block"
+  );
+  bulletedListBlocks.forEach((block) => {
+    block.setAttribute("dir", "rtl");
+  });
 
-function setStyle(element, property, value) {
-  element.style[property] = value;
-}
+  const tableBlocks = document.querySelectorAll(".notion-table-block");
+  tableBlocks.forEach((block) => {
+    const rtlTextFound = Array.from(block.querySelectorAll("*")).some((el) =>
+      /[\u0600-\u06FF]/.test(el.textContent)
+    );
 
-function setAttribute(element, attribute, value) {
-  element.setAttribute(attribute, value);
-}
+    if (rtlTextFound) {
+      block.setAttribute("dir", "rtl");
+    }
+  });
 
-function alignListItemsToRight() {
-  const items = getElements(SELECTORS.listItems);
-  items.forEach((item) => setStyle(item, "text-align", "start"));
-}
+  const todoBlocks = document.querySelectorAll(".notion-to_do-block");
+  todoBlocks.forEach((block) => {
+    const rtlTextFound = Array.from(block.querySelectorAll("*")).some((el) =>
+      /[\u0600-\u06FF]/.test(el.textContent)
+    );
 
-function setBlocksDirectionToAuto() {
-  const blocks = getElements(SELECTORS.topLevelBlocks);
-  blocks.forEach((block) => setAttribute(block, "dir", "auto"));
-}
-
-function isRTL(text) {
-  const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-  return rtlRegex.test(text);
-}
-
-function setRTLForSpecificElements() {
-  const elements = getElements(RTL_SELECTORS);
-  elements.forEach((element) => {
-    const textContent = element.textContent.trim();
-    if (isRTL(textContent)) {
-      setAttribute(element, "dir", "rtl");
-      setStyle(element, "text-align", "right");
-    } else {
-      setAttribute(element, "dir", "ltr");
-      setStyle(element, "text-align", "left");
+    if (rtlTextFound) {
+      block.setAttribute("dir", "rtl");
     }
   });
 }
 
-function alignPageContentToRight() {
-  setBlocksDirectionToAuto();
-  setRTLForSpecificElements();
-  alignListItemsToRight();
-  applyCustomFontToElements();
-}
+function initObservers() {
+  const targetNode = document.body;
 
-function onNotionDocumentLoaded(mutationsList) {
-  if (isMutationQueueEmpty()) {
-    requestIdleCallback(idleAlignItemsToRight);
-  }
-  MUTATIONS_QUEUE.push(mutationsList);
-}
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      const newNodes = [...mutation.addedNodes].filter(
+        (n) => n.nodeType === Node.TEXT_NODE
+      );
 
-function idleAlignItemsToRight() {
-  for (const mutation of MUTATIONS_QUEUE) {
-    for (const { addedNodes } of mutation) {
-      if (addedNodes[0]) {
-        const notionPageElem = getNotionPageElem(addedNodes[0]);
-        if (notionPageElem) {
-          alignPageContentToRight();
-          NOTION_PAGE_CONTENT_MUTATION.disconnect();
-          NOTION_PAGE_CONTENT_MUTATION.observe(notionPageElem, {
-            childList: true,
-            subtree: false,
-          });
+      if (newNodes.length) {
+        for (let node of newNodes) {
+          const textContent = node.textContent;
+          const arabic = /[\u0600-\u06FF]/;
+
+          if (textContent && arabic.test(textContent)) {
+            node.parentNode.setAttribute("dir", "rtl");
+          }
         }
       }
-    }
-  }
-  MUTATIONS_QUEUE.splice(0, MUTATIONS_QUEUE.length);
+    });
+
+    applyRTLToBlocks();
+  });
+
+  observer.observe(targetNode, {
+    childList: true,
+    subtree: true,
+  });
 }
 
-function isMutationQueueEmpty() {
-  return MUTATIONS_QUEUE.length === 0;
-}
-
-function getNotionPageElem(node) {
-  if (!(node instanceof HTMLElement)) return null;
-
-  for (const className of ROOT_LEVEL_CLASS_NAMES) {
-    const elements = node.getElementsByClassName(className);
-    if (elements.length > 0) return elements[0];
-  }
-
-  return null;
+function init() {
+  initObservers();
+  injectCustomFontStyles();
+  applyCustomFontToElements();
 }
 
 init();
