@@ -57,7 +57,7 @@ function init() {
 }
 
 function handleEnterKeyPress(event) {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" || event.key === " ") {
     alignPageContentToRight();
   }
 }
