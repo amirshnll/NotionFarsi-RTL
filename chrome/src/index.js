@@ -124,21 +124,20 @@ function setAttribute(element, attribute, value) {
 
 function alignListItemsToRight() {
   const items = getElements(SELECTORS.listItems);
-  items.forEach((item) => setStyle(item, "text-align", "start"));
-}
-
-function setBlocksDirectionToAuto() {
-  const blocks = getElements(SELECTORS.topLevelBlocks);
-  blocks.forEach((block) => setAttribute(block, "dir", "auto"));
-}
-
-function isRTL(text) {
-  const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-  return rtlRegex.test(text);
+  items.forEach((item) => {
+    const textContent = item.textContent.trim();
+    if (isRTL(textContent)) {
+      setStyle(item, "text-align", "right");
+      setAttribute(item, "dir", "rtl");
+    } else {
+      setStyle(item, "text-align", "left");
+      setAttribute(item, "dir", "ltr");
+    }
+  });
 }
 
 function setRTLForSpecificElements() {
-  const elements = getElements(RTL_SELECTORS);
+  const elements = getElements(SELECTORS.topLevelBlocks);
   elements.forEach((element) => {
     const textContent = element.textContent.trim();
     if (isRTL(textContent)) {
@@ -149,6 +148,16 @@ function setRTLForSpecificElements() {
       setStyle(element, "text-align", "left");
     }
   });
+}
+
+function setBlocksDirectionToAuto() {
+  const blocks = getElements(SELECTORS.topLevelBlocks);
+  blocks.forEach((block) => setAttribute(block, "dir", "auto"));
+}
+
+function isRTL(text) {
+  const rtlRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+  return rtlRegex.test(text);
 }
 
 function alignPageContentToRight() {
