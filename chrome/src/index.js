@@ -102,9 +102,11 @@ function initObservers() {
       if (newNodes.length) {
         for (let node of newNodes) {
           const textContent = node.textContent;
+          const parentTextContent = node.parentNode?.textContent || '';
           const arabic = /[\u0600-\u06FF]/;
 
-          if (textContent && arabic.test(textContent)) {
+          if ((textContent && arabic.test(textContent)) || 
+              (parentTextContent && arabic.test(parentTextContent))) {
             node.parentNode.setAttribute("dir", "rtl");
           }
         }
