@@ -64,7 +64,10 @@ function applyRTLToBlocks() {
     ".notion-selectable.notion-bulleted_list-block"
   );
   bulletedListBlocks.forEach((block) => {
-    block.setAttribute("dir", "rtl");
+    const rtlTextFound = /[\u0600-\u06FF]/.test(block.textContent);
+    if (rtlTextFound) {
+      block.setAttribute("dir", "rtl");
+    }
   });
 
   const tableBlocks = document.querySelectorAll(".notion-table-block");
