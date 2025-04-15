@@ -64,7 +64,10 @@ function applyRTLToBlocks() {
     ".notion-selectable.notion-bulleted_list-block"
   );
   bulletedListBlocks.forEach((block) => {
-    block.setAttribute("dir", "rtl");
+    const rtlTextFound = /[\u0600-\u06FF]/.test(block.textContent);
+    if (rtlTextFound) {
+      block.setAttribute("dir", "rtl");
+    }
   });
 
   const tableBlocks = document.querySelectorAll(".notion-table-block");
@@ -102,9 +105,11 @@ function initObservers() {
       if (newNodes.length) {
         for (let node of newNodes) {
           const textContent = node.textContent;
+          const parentTextContent = node.parentNode?.textContent || '';
           const arabic = /[\u0600-\u06FF]/;
 
-          if (textContent && arabic.test(textContent)) {
+          if ((textContent && arabic.test(textContent)) || 
+              (parentTextContent && arabic.test(parentTextContent))) {
             node.parentNode.setAttribute("dir", "rtl");
           }
         }
