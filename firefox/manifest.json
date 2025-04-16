@@ -11,13 +11,23 @@
     },
     "permissions": [
         "*://*.notion.so/*",
-        "*://*.notion.site/*"
+        "*://*.notion.site/*",
+        "*://*.notion.com/*",
+        "*://*.api.notion.com/*",
+        "*://*.img.notionusercontent.com/*",
+        "*://*.notionusercontent.com/*",
+        "*://*.secure.notion-static.com/*"
     ],
     "content_scripts": [
         {
             "matches": [
                 "*://*.notion.so/*",
-                "*://*.notion.site/*"
+                "*://*.notion.site/*",
+                "*://*.notion.com/*",
+                "*://*.api.notion.com/*",
+                "*://*.img.notionusercontent.com/*",
+                "*://*.notionusercontent.com/*",
+                "*://*.secure.notion-static.com/*"
             ],
             "js": [
                 "src/index.js"
