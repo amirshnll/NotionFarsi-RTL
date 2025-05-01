@@ -70,6 +70,16 @@ function applyRTLToBlocks() {
     }
   });
 
+  const numberedListBlocks = document.querySelectorAll(
+    ".notion-selectable.notion-numbered_list-block"
+  );
+  numberedListBlocks.forEach((block) => {
+    const rtlTextFound = /[\u0600-\u06FF]/.test(block.textContent);
+    if (rtlTextFound) {
+      block.setAttribute("dir", "rtl");
+    }
+  });
+
   const tableBlocks = document.querySelectorAll(".notion-table-block");
   tableBlocks.forEach((block) => {
     const rtlTextFound = Array.from(block.querySelectorAll("*")).some((el) =>
@@ -108,8 +118,8 @@ function initObservers() {
           const parentTextContent = node.parentNode?.textContent || '';
           const arabic = /[\u0600-\u06FF]/;
 
-          if ((textContent && arabic.test(textContent)) || 
-              (parentTextContent && arabic.test(parentTextContent))) {
+          if ((textContent && arabic.test(textContent)) ||
+            (parentTextContent && arabic.test(parentTextContent))) {
             node.parentNode.setAttribute("dir", "rtl");
           }
         }
