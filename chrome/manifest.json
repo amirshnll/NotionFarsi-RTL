@@ -1,7 +1,7 @@
 {
     "name": "NotionFarsi-RTL",
     "description": "An extension to add RTL (Right-to-Left) support for Farsi in Notion.",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "manifest_version": 3,
     "icons": {
         "16": "assets/logo/16.png",
@@ -45,8 +45,8 @@
                 "assets/logo/32.png",
                 "assets/logo/48.png",
                 "assets/logo/128.png",
-                "assets/font/vazirmatn.ttf",
-                "assets/font/vazirmatn.woff2"
+                "assets/font/Vazirmatn-NL-Regular.ttf",
+                "assets/font/Vazirmatn-NL-Regular.woff2"
             ],
             "matches": [
                 "*://*.notion.so/*",

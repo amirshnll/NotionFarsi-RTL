@@ -12,7 +12,7 @@ const ROOT_LEVEL_CLASS_NAMES = [
   "notion-collection-item",
 ];
 const MUTATIONS_QUEUE = [];
-const CUSTOM_FONT_PATH = "assets/font/vazirmatn.";
+const CUSTOM_FONT_PATH = "assets/font/Vazirmatn-NL-Regular.";
 const WOFF2_FONT_PATH = browser.runtime.getURL(CUSTOM_FONT_PATH + "woff2");
 const TTF_FONT_PATH = browser.runtime.getURL(CUSTOM_FONT_PATH + "ttf");
 
@@ -20,7 +20,7 @@ function injectCustomFontStyles() {
   const style = document.createElement("style");
   style.textContent = `
     @font-face {
-        font-family: 'vazirmatn';
+        font-family: 'Vazirmatn NL';
         src: url('${TTF_FONT_PATH}') format('truetype'),
         url('${WOFF2_FONT_PATH}') format('woff2');
         font-weight: normal;
@@ -30,7 +30,7 @@ function injectCustomFontStyles() {
     .notion-gallery-view, .notion-page-block, .notion-topbar, .notion-body,
     .notion-body h1, .notion-body h2, .notion-body h3, .notion-body h4, .notion-body h5, .notion-body h6,
     .notion-body p, .notion-body span{
-        font-family: 'vazirmatn', sans-serif !important;
+        font-family: Vazirmatn NL, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol" !important;
     }
     .notion-collection_view-block div[data-content-editable-void="true"] > div:nth-child(2){
         direction:rtl!important;
